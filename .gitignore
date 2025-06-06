@@ -1,194 +1,177 @@
-# Byte-compiled / optimized / DLL files
-__pycache__/
-*.py[cod]
-*$py.class
+### 1️⃣ `requirements.txt`
 
-# C extensions
-*.so
+```
+tx
+pandas
+yagmail
 
-# Distribution / packaging
-.Python
-build/
-develop-eggs/
-dist/
-downloads/
-eggs/
-.eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
-wheels/
-share/python-wheels/
-*.egg-info/
-.installed.cfg
-*.egg
-MANIFEST
+```
 
-# PyInstaller
-#  Usually these files are written by a python script from a template
-#  before PyInstaller builds the exe, so as to inject date/other infos into it.
-*.manifest
-*.spec
+---
 
-# Installer logs
-pip-log.txt
-pip-delete-this-directory.txt
+### 2️⃣ `config.json`
 
-# Unit test / coverage reports
-htmlcov/
-.tox/
-.nox/
-.coverage
-.coverage.*
-.cache
-nosetests.xml
-coverage.xml
-*.cover
-*.py,cover
-.hypothesis/
-.pytest_cache/
-cover/
+```json
+{
+"email_remetente": "[jonatas.tavares@metropoles.com](mailto:jonatas.tavares@metropoles.com)",
+"senha_app": "cfovrmwsqyugxwvv",
+"assunto_email": "Confira nossa proposta personalizada!",
+"corpo_email": "Olá {nome},\n\nSegue em anexo a nossa proposta especialmente preparada para você.\n\nAtenciosamente,\nCaio Bruno - Metrópoles",
+"segmento": ["bets","crypto","diversos","saúde"]
+}
 
-# Translations
-*.mo
-*.pot
+//criar os inputs para receber os valores que o json irá consumir (o e-mail e senha poderão ser fixos, já o de assunto, corpo e segmento serão variáveis)
+```
 
-# Django stuff:
-*.log
-local_settings.py
-db.sqlite3
-db.sqlite3-journal
+---
 
-# Flask stuff:
-instance/
-.webassets-cache
+### 3️⃣ `main.py` (com auto detecção de segmentos)
 
-# Scrapy stuff:
-.scrapy
+```python
+python
 
-# Sphinx documentation
-docs/_build/
+import pandas as pd
+import yagmail
+import os
+import json
+from datetime import datetime
 
-# PyBuilder
-.pybuilder/
-target/
+# ======= Funções utilitárias =======
 
-# Jupyter Notebook
-.ipynb_checkpoints
+def criar_pasta_logs():
+    if not os.path.exists('logs'):
+        os.makedirs('logs')
 
-# IPython
-profile_default/
-ipython_config.py
+def registrar_log(msg):
+    data_str = datetime.now().strftime('%Y-%m-%d')
+    log_path = f'logs/log_{data_str}.txt'
+    with open(log_path, 'a', encoding='utf-8') as f:
+        f.write(f"{datetime.now().strftime('%H:%M:%S')} - {msg}\n")
 
-# pyenv
-#   For a library or package, you might want to ignore these files since the code is
-#   intended to run in multiple environments; otherwise, check them in:
-# .python-version
+# ======= Início =======
 
-# pipenv
-#   According to pypa/pipenv#598, it is recommended to include Pipfile.lock in version control.
-#   However, in case of collaboration, if having platform-specific dependencies or dependencies
-#   having no cross-platform support, pipenv may install dependencies that don't work, or not
-#   install all needed dependencies.
-#Pipfile.lock
+# Criar pasta de logs se não existir
+criar_pasta_logs()
 
-# UV
-#   Similar to Pipfile.lock, it is generally recommended to include uv.lock in version control.
-#   This is especially recommended for binary packages to ensure reproducibility, and is more
-#   commonly ignored for libraries.
-#uv.lock
+# Carregar config
+try:
+    with open('config.json', 'r', encoding='utf-8') as f:
+        config = json.load(f)
+    registrar_log("✅ Configuração carregada com sucesso.")
+except Exception as e:
+    registrar_log(f"❌ Erro ao carregar config.json: {e}")
+    exit()
 
-# poetry
-#   Similar to Pipfile.lock, it is generally recommended to include poetry.lock in version control.
-#   This is especially recommended for binary packages to ensure reproducibility, and is more
-#   commonly ignored for libraries.
-#   https://python-poetry.org/docs/basic-usage/#commit-your-poetrylock-file-to-version-control
-#poetry.lock
+# Configuração do yagmail
+try:
+    yag = yagmail.SMTP(user=config['email_remetente'], password=config['senha_app'])
+    registrar_log("✅ Conexão com servidor de e-mail estabelecida.")
+except Exception as e:
+    registrar_log(f"❌ Erro na autenticação do e-mail: {e}")
+    exit()
 
-# pdm
-#   Similar to Pipfile.lock, it is generally recommended to include pdm.lock in version control.
-#pdm.lock
-#   pdm stores project-wide configurations in .pdm.toml, but it is recommended to not include it
-#   in version control.
-#   https://pdm.fming.dev/latest/usage/project/#working-with-version-control
-.pdm.toml
-.pdm-python
-.pdm-build/
+# === Auto detectar segmentos ===
+segmentos = []
+for filename in os.listdir('contatos'):
+    if filename.endswith('.csv'):
+        segmento_nome = filename.replace('.csv', '')
+        segmentos.append(segmento_nome)
 
-# PEP 582; used by e.g. github.com/David-OConnor/pyflow and github.com/pdm-project/pdm
-__pypackages__/
+registrar_log(f"🔍 Segmentos detectados: {segmentos}")
 
-# Celery stuff
-celerybeat-schedule
-celerybeat.pid
+# Loop pelos segmentos detectados
+for segmento in segmentos:
+    registrar_log(f"\n🔹 Iniciando processamento do segmento: {segmento}")
 
-# SageMath parsed files
-*.sage.py
+    # Carregar contatos
+    path_contatos = f'contatos/{segmento}.csv'
+    try:
+        df = pd.read_csv(path_contatos)
+    except Exception as e:
+        registrar_log(f"❌ Erro ao ler CSV de contatos {segmento}: {e}")
+        continue
 
-# Environments
-.env
-.venv
-env/
-venv/
-ENV/
-env.bak/
-venv.bak/
+    # Caminho da proposta
+    path_proposta = f'propostas/{segmento}.pdf'
+    if not os.path.exists(path_proposta):
+        registrar_log(f"⚠️ Arquivo de proposta não encontrado: {path_proposta}")
+        continue
 
-# Spyder project settings
-.spyderproject
-.spyproject
+    # Enviar emails
+    for index, row in df.iterrows():
+        nome = row.get('Nome', '').strip()
+        email = row.get('Email', '').strip()
 
-# Rope project settings
-.ropeproject
+        if not nome or not email:
+            registrar_log(f"⚠️ Contato inválido na linha {index+2}: Nome='{nome}', Email='{email}'")
+            continue
 
-# mkdocs documentation
-/site
+        corpo_personalizado = config['corpo_email'].format(nome=nome)
 
-# mypy
-.mypy_cache/
-.dmypy.json
-dmypy.json
+        try:
+            yag.send(
+                to=email,
+                subject=config['assunto_email'],
+                contents=corpo_personalizado,
+                attachments=path_proposta
+            )
+            registrar_log(f"✅ E-mail enviado para {nome} <{email}>")
+        except Exception as e:
+            registrar_log(f"❌ Erro ao enviar e-mail para {nome} <{email}>: {e}")
 
-# Pyre type checker
-.pyre/
+registrar_log("\n🚀 Processo concluído.")
 
-# pytype static type analyzer
-.pytype/
+```
 
-# Cython debug symbols
-cython_debug/
+---
 
-# PyCharm
-#  JetBrains specific template is maintained in a separate JetBrains.gitignore that can
-#  be found at https://github.com/github/gitignore/blob/main/Global/JetBrains.gitignore
-#  and can be added to the global gitignore or merged into this file.  For a more nuclear
-#  option (not recommended) you can uncomment the following to ignore the entire idea folder.
-#.idea/
+### 4️⃣ `executar.bat`
 
-# Abstra
-# Abstra is an AI-powered process automation framework.
-# Ignore directories containing user credentials, local state, and settings.
-# Learn more at https://abstra.io/docs
-.abstra/
+```
+b
+@echo off
+cd /d %~dp0
+python main.py
+pause
 
-# Visual Studio Code
-#  Visual Studio Code specific template is maintained in a separate VisualStudioCode.gitignore 
-#  that can be found at https://github.com/github/gitignore/blob/main/Global/VisualStudioCode.gitignore
-#  and can be added to the global gitignore or merged into this file. However, if you prefer, 
-#  you could uncomment the following to ignore the enitre vscode folder
-# .vscode/
+```
 
-# Ruff stuff:
-.ruff_cache/
+---
 
-# PyPI configuration file
-.pypirc
+### 5️⃣ Exemplo de CSV para cada segmento (ex: `casa_de_apostas.csv`)
 
-# Cursor
-#  Cursor is an AI-powered code editor. `.cursorignore` specifies files/directories to
-#  exclude from AI features like autocomplete and code analysis. Recommended for sensitive data
-#  refer to https://docs.cursor.com/context/ignore-files
-.cursorignore
-.cursorindexingignore
+```
+cs
+Nome,Email
+João Silva,joao@email.com
+Maria Souza,maria@email.com
+
+```
+
+---
+
+### Estrutura final esperada:
+
+```
+arduino
+
+/automacao_envio_propostas/
+│
+├── contatos/
+│   ├── casa_de_apostas.csv
+│   ├── cripto.csv
+│   ├── esportes.csv
+│
+├── propostas/
+│   ├── casa_de_apostas.pdf
+│   ├── cripto.pdf
+│   ├── esportes.pdf
+│
+├── logs/                # será criada automaticamente
+│
+├── config.json
+├── main.py
+├── requirements.txt
+└── executar.bat
+
+```
