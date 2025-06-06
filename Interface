@@ -1,0 +1,78 @@
+import tkinter as tk
+from tkinter import messagebox, ttk
+import json
+import os
+import subprocess
+
+# Função para gerar config.json e rodar main.py
+def enviar_emails():
+    assunto = entry_assunto.get()
+    corpo = text_corpo.get("1.0", tk.END).strip()
+    segmento = combo_segmento.get()
+
+    if not assunto or not corpo or not segmento:
+        messagebox.showerror("Erro", "Por favor, preencha todos os campos.")
+        return
+
+    # Atualizar config.json
+    config = {
+        "email_remetente": "jonatas.tavares@metropoles.com",
+        "senha_app": "cfovrmwsqyugxwvv",
+        "assunto_email": assunto,
+        "corpo_email": corpo,
+        "segmento": [segmento]
+    }
+
+    try:
+        with open("config.json", "w", encoding="utf-8") as f:
+            json.dump(config, f, indent=4, ensure_ascii=False)
+    except Exception as e:
+        messagebox.showerror("Erro", f"Falha ao salvar config.json: {e}")
+        return
+
+    # Rodar main.py
+    try:
+        subprocess.run(["python", "main.py"], check=True)
+        messagebox.showinfo("Sucesso", "Processo concluído com sucesso!")
+    except subprocess.CalledProcessError as e:
+        messagebox.showerror("Erro", f"Erro ao executar main.py: {e}")
+
+# Carregar segmentos automaticamente da pasta contatos
+def carregar_segmentos():
+    segmentos = []
+    if os.path.exists("contatos"):
+        for filename in os.listdir("contatos"):
+            if filename.endswith(".csv"):
+                segmentos.append(filename.replace(".csv", ""))
+    return segmentos
+
+# ======== Interface gráfica ========
+root = tk.Tk()
+root.title("Envio de Propostas - Metrópoles")
+root.geometry("500x400")
+
+# Assunto
+label_assunto = tk.Label(root, text="Assunto do e-mail:")
+label_assunto.pack(pady=(10, 0))
+entry_assunto = tk.Entry(root, width=60)
+entry_assunto.pack()
+
+# Corpo do e-mail
+label_corpo = tk.Label(root, text="Corpo do e-mail:")
+label_corpo.pack(pady=(10, 0))
+text_corpo = tk.Text(root, width=60, height=10)
+text_corpo.pack()
+
+# Segmento
+label_segmento = tk.Label(root, text="Segmento:")
+label_segmento.pack(pady=(10, 0))
+segmentos = carregar_segmentos()
+combo_segmento = ttk.Combobox(root, values=segmentos, state="readonly")
+combo_segmento.pack()
+
+# Botão Enviar
+botao_enviar = tk.Button(root, text="ENVIAR E-MAILS", command=enviar_emails, bg="green", fg="white", font=("Arial", 12, "bold"))
+botao_enviar.pack(pady=20)
+
+# Iniciar a interface
+root.mainloop()
