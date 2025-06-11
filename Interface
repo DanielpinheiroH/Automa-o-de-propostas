@@ -18,7 +18,9 @@ for subpasta in SUBPASTAS:
 def abrir_tela_principal(config):
     root = tk.Tk()
     root.title("Envio de Propostas - Metrópoles")
-    root.geometry("500x600")
+    root.geometry("500x650")
+
+    anexo_path = tk.StringVar()
 
     tk.Label(root, text="Assunto do e-mail:").pack(pady=(10, 0))
     entry_assunto = tk.Entry(root, width=60)
@@ -68,23 +70,22 @@ def abrir_tela_principal(config):
                 messagebox.showerror("Erro", "Formato de arquivo inválido.")
                 return
 
-            df = pd.read_csv(caminho_destino)
-
             segmento_var.set(nome_segmento)
-
-            if "nome" in df.columns:
-                nomes = df["nome"].dropna().tolist()
-                lista_nomes = "\n".join(f"- {nome}" for nome in nomes)
-                texto_gerado = f"Prezados,\n\nSegue nossa proposta para:\n\n{lista_nomes}\n\nFico à disposição.\n"
-                text_corpo.delete("1.0", tk.END)
-                text_corpo.insert(tk.END, texto_gerado)
-            else:
-                messagebox.showwarning("Aviso", "O arquivo não possui a coluna 'nome'. Corpo não foi preenchido.")
+            text_corpo.delete("1.0", tk.END)
 
             messagebox.showinfo("Sucesso", f"Arquivo carregado como '{nome_segmento}.csv'")
 
         except Exception as e:
             messagebox.showerror("Erro", f"Falha ao processar arquivo: {e}")
+
+    def selecionar_anexo():
+        caminho = filedialog.askopenfilename(
+            title="Selecionar anexo",
+            filetypes=[("Todos os arquivos", "*.*")]
+        )
+        if caminho:
+            anexo_path.set(caminho)
+            messagebox.showinfo("Anexo selecionado", f"Arquivo anexado:\n{os.path.basename(caminho)}")
 
     def enviar_emails():
         assunto = entry_assunto.get()
@@ -145,6 +146,17 @@ def abrir_tela_principal(config):
                         msg["Cc"] = email_copia
 
                     msg.set_content(corpo_personalizado)
+
+                    # Adiciona anexo
+                    if anexo_path.get():
+                        try:
+                            with open(anexo_path.get(), "rb") as f:
+                                file_data = f.read()
+                                file_name = os.path.basename(anexo_path.get())
+                            msg.add_attachment(file_data, maintype="application", subtype="octet-stream", filename=file_name)
+                        except Exception as e:
+                            messagebox.showwarning("Anexo", f"Erro ao anexar o arquivo:\n{e}")
+
                     smtp.send_message(msg)
                     enviados += 1
 
@@ -154,7 +166,7 @@ def abrir_tela_principal(config):
             messagebox.showerror("Erro no envio", f"Ocorreu um erro ao enviar os e-mails:\n{e}")
 
     tk.Button(root, text="Selecionar arquivo de contatos", command=selecionar_arquivo).pack(pady=10)
-
+    tk.Button(root, text="Selecionar anexo", command=selecionar_anexo).pack(pady=5)
     tk.Button(root, text="ENVIAR E-MAILS", command=enviar_emails, bg="green", fg="white", font=("Arial", 12, "bold")).pack(pady=20)
 
     root.mainloop()
