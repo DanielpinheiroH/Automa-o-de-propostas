@@ -88,12 +88,12 @@ def abrir_tela_principal(config):
             Executivo de Negócios<br>
             <span style="color: gray;">tel: +55 61 99304-0370</span><br>
             <div style="margin-top:5px;">
-              <a href="https://www.facebook.com/metropolesdf/"><img src="./assets/facebook.png" alt="facebook"></a>
-              <a href="https://www.instagram.com/metropolesdf/"><img src="./assets/insta.png" alt="Instagram"></a>
-              <a href="https://twitter.com/Metropoles"><img src="./assets/twitter.png" alt="Twitter"></a>
-              <a href="https://www.youtube.com/metropolesdf"><img src="./assets/ytb.png" alt="Youtube"></a>
-              <a href="https://www.linkedin.com/company/metr%C3%B3poles"><img src="./assets/linkedin.png" alt="Linkedin"></a>
-              <img src="./assets/Metropoles.png" alt="Metrópoles" style="margin-left:50px;">
+              <a href="https://www.facebook.com/metropolesdf/"><img src="https://raw.githubusercontent.com/DanielpinheiroH/Automa-o-de-propostas/refs/heads/JonatasTavares1-patch-1/assets/facebook.png" alt="facebook"></a>
+              <a href="https://www.instagram.com/metropolesdf/"><img src="https://raw.githubusercontent.com/DanielpinheiroH/Automa-o-de-propostas/refs/heads/JonatasTavares1-patch-1/assets/insta.png" alt="Instagram"></a>
+              <a href="https://twitter.com/Metropoles"><img src="https://raw.githubusercontent.com/DanielpinheiroH/Automa-o-de-propostas/refs/heads/JonatasTavares1-patch-1/assets/twitter.png" alt="Twitter"></a>
+              <a href="https://www.youtube.com/metropolesdf"><img src="https://raw.githubusercontent.com/DanielpinheiroH/Automa-o-de-propostas/refs/heads/JonatasTavares1-patch-1/assets/ytb.png" alt="Youtube"></a>
+              <a href="https://www.linkedin.com/company/metr%C3%B3poles"><img src="https://raw.githubusercontent.com/DanielpinheiroH/Automa-o-de-propostas/refs/heads/JonatasTavares1-patch-1/assets/linkedin.png" alt="Linkedin"></a>
+              <img src="https://raw.githubusercontent.com/DanielpinheiroH/Automa-o-de-propostas/refs/heads/JonatasTavares1-patch-1/assets/Metropoles.png" alt="Metrópoles" style="margin-left:50px;">
             </div>
           </div>
         </div>
