@@ -1,0 +1,11 @@
+{
+    "email_remetente": "jonatas.tavares@metropoles.com",
+    "senha_app": "miagsephobbulmtc",
+    "assunto_email": "teste",
+    "corpo_email": "1234",
+    "segmento": [
+        "bets"
+    ],
+    "email_copia": "jonatastavares2015@gmail.com",
+    "tipo_envio": "clientes"
+}

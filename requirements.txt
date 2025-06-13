@@ -1,0 +1,4 @@
+txt
+CopiarEditar
+pandas
+yagmail
