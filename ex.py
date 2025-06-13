@@ -48,27 +48,20 @@ def abrir_tela_principal(config):
     entry_segmento.pack()
 
     def selecionar_arquivo():
+        subpasta = tipo_envio_var.get()
+        initial_dir = os.path.join(CONTATOS_DIR, subpasta)
         caminho = filedialog.askopenfilename(
             title="Selecionar arquivo de contatos",
-            filetypes=[("Arquivos CSV", "*.csv")]
+            filetypes=[("Arquivos CSV", "*.csv")],
+            initialdir=initial_dir
         )
         if not caminho:
             return
 
         nome_segmento = os.path.splitext(os.path.basename(caminho))[0]
-        subpasta = tipo_envio_var.get()
-        pasta_destino = os.path.join(CONTATOS_DIR, subpasta)
-        os.makedirs(pasta_destino, exist_ok=True)
-        caminho_destino = os.path.join(pasta_destino, nome_segmento + ".csv")
-
-        try:
-            shutil.copy(caminho, caminho_destino)
-            df = pd.read_csv(caminho_destino)
-            segmento_var.set(nome_segmento)
-            text_corpo.delete("1.0", tk.END)
-            messagebox.showinfo("Sucesso", f"Arquivo carregado como '{nome_segmento}.csv'")
-        except Exception as e:
-            messagebox.showerror("Erro", f"Falha ao processar arquivo: {e}")
+        segmento_var.set(nome_segmento)
+        text_corpo.delete("1.0", tk.END)
+        messagebox.showinfo("Arquivo selecionado", f"Segmento carregado: {nome_segmento}")
 
     def selecionar_anexos():
         caminhos = filedialog.askopenfilenames(title="Selecionar anexos")
@@ -76,32 +69,34 @@ def abrir_tela_principal(config):
             anexos_paths.clear()
             anexos_paths.extend(caminhos)
             nomes = [os.path.basename(c) for c in caminhos]
-            messagebox.showinfo("Anexos selecionados", f"Arquivos:{chr(10).join(nomes)}")
+            messagebox.showinfo("Anexos selecionados", f"Arquivos:\n{chr(10).join(nomes)}")
 
     def gerar_assinatura():
         return """
         <div style="font-family: Arial; font-size: 12px; display: flex; align-items: center;">
-          <img class="logo" src="https://ci3.googleusercontent.com/meips/ADKq_NaX6Grba4uPD9NzgZR3lrr3jsTQwD7oLVm1R09zw4sPwHeCJw6SYeUN1Yg8-QBdk_sMGrNO8x6g1VmKiwWuaE930fPekwkW2oNEb4utYg=s0-d-e1-ft#http://files.metropoles.com/assinatura-email/M-email.gif"
-           style="margin-right:12px; max-height:50px">
-          <div>
-            <strong style="font-family: sans-serif; font-size: 20px; color: red;">Caio Correa</strong><br>
-            Executivo de Negócios<br>
-            <span style="color: gray;">tel: +55 61 99304-0370</span><br>
-            <div style="margin-top:5px;">
-              <a href="https://www.facebook.com/metropolesdf/"><img src="https://raw.githubusercontent.com/DanielpinheiroH/Automa-o-de-propostas/refs/heads/JonatasTavares1-patch-1/assets/facebook.png" alt="facebook"></a>
-              <a href="https://www.instagram.com/metropolesdf/"><img src="https://raw.githubusercontent.com/DanielpinheiroH/Automa-o-de-propostas/refs/heads/JonatasTavares1-patch-1/assets/insta.png" alt="Instagram"></a>
-              <a href="https://twitter.com/Metropoles"><img src="https://raw.githubusercontent.com/DanielpinheiroH/Automa-o-de-propostas/refs/heads/JonatasTavares1-patch-1/assets/twitter.png" alt="Twitter"></a>
-              <a href="https://www.youtube.com/metropolesdf"><img src="https://raw.githubusercontent.com/DanielpinheiroH/Automa-o-de-propostas/refs/heads/JonatasTavares1-patch-1/assets/ytb.png" alt="Youtube"></a>
-              <a href="https://www.linkedin.com/company/metr%C3%B3poles"><img src="https://raw.githubusercontent.com/DanielpinheiroH/Automa-o-de-propostas/refs/heads/JonatasTavares1-patch-1/assets/linkedin.png" alt="Linkedin"></a>
-              <img src="https://raw.githubusercontent.com/DanielpinheiroH/Automa-o-de-propostas/refs/heads/JonatasTavares1-patch-1/assets/Metropoles.png" alt="Metrópoles" style="margin-left:50px;">
-            </div>
-          </div>
-        </div>
+    <img class="logo" src="https://ci3.googleusercontent.com/meips/ADKq_NaX6Grba4uPD9NzgZR3lrr3jsTQwD7oLVm1R09zw4sPwHeCJw6SYeUN1Yg8-QBdk_sMGrNO8x6g1VmKiwWuaE930fPekwkW2oNEb4utYg=s0-d-e1-ft#http://files.metropoles.com/assinatura-email/M-email.gif"
+     style="margin-right:10px; max-height:50px">
+    <div>
+        <h2 style="margin:0px;font-family:arial,Geogrotesque-SemiBold;font-size:12px;text-transform:uppercase;color:rgb(172,27,13)">caio corrêa</h2>
+        <h3 style="margin:2px 0 0;font-family:georgia,Merriweather;font-size:14px;color:rgb(59,16,19);letter-spacing:0px">Executivo de Negócios</h3>        
+      <a href="tel:+55%2061%20996666775" value="" style="color:rgb(167,160,161);margin:5px 0px 0px;padding:0px" target="_blank">tel:+55 61 99304-0370</a><br><br>
+      <hr style="margin: 0; padding: 0; background-color: rgb(229,229,229); height: 2px; border: none; width: 500px; clear: both;">
+
+      <div style="margin-top:5px;">
+        <a href="https://www.facebook.com/metropolesdf/"><img src="https://raw.githubusercontent.com/DanielpinheiroH/Automa-o-de-propostas/refs/heads/JonatasTavares1-patch-1/assets/facebook.png" alt="facebook"></a>
+        <a href="https://www.instagram.com/metropolesdf/"><img src="https://raw.githubusercontent.com/DanielpinheiroH/Automa-o-de-propostas/refs/heads/JonatasTavares1-patch-1/assets/insta.png" alt="Instagram"></a>
+        <a href="https://twitter.com/Metropoles"><img src="https://raw.githubusercontent.com/DanielpinheiroH/Automa-o-de-propostas/refs/heads/JonatasTavares1-patch-1/assets/twitter.png" alt="Twitter"></a>
+        <a href="https://www.youtube.com/metropolesdf"><img src="https://raw.githubusercontent.com/DanielpinheiroH/Automa-o-de-propostas/refs/heads/JonatasTavares1-patch-1/assets/ytb.png" alt="Youtube"></a>
+        <a href="https://www.linkedin.com/company/metr%C3%B3poles"><img src="https://raw.githubusercontent.com/DanielpinheiroH/Automa-o-de-propostas/refs/heads/JonatasTavares1-patch-1/assets/linkedin.png" alt="Linkedin"></a>
+        <img src="https://raw.githubusercontent.com/DanielpinheiroH/Automa-o-de-propostas/refs/heads/JonatasTavares1-patch-1/assets/Metropoles.png" alt="Metrópoles" style="margin-left:300px;">
+      </div>
+    </div>
+  </div>
         """
 
     def enviar_emails():
         assunto = entry_assunto.get()
-        corpo = text_corpo.get("1.0", tk.END).strip()
+        corpo = text_corpo.get("1.0", tk.END).strip().replace("\n", "<br>")
         segmento = segmento_var.get()
         email_copia = entry_cc.get().strip()
         tipo_envio = tipo_envio_var.get()
